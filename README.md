@@ -46,12 +46,13 @@ Retrieved game data is organized and stored as **CSV files**, one per team (e.g.
 
 ---
 
-## 4. Data Analysis (Author 2: Aaditya) TODO 
+## 4. Data Analysis (Author 2: Aaditya) 
 *20 points*
 
+The data analysis portion of the project will take the stored close-game CSV data and compare how the two selected NBA teams perform in games decided by 5 points or fewer. For each team, the program will count the total number of close games, the number of wins, and the number of losses. From this, it will calculate a close-game win percentage to help measure which team performs better under pressure. The analysis will also compare the two selected teams head-to-head based on these statistics and generate a summary that can be displayed in the results window. This allows the user to quickly understand which team has been more successful in clutch situations.
 
-## 5. Visualization (Author 2: Aaditya) TODO
+## 5. Visualization (Author 2: Aaditya)
 *20 points* 
 
-
+The visualization portion of the project will present the analysis results in a simple and clear graphical format using matplotlib. After the close-game data is analyzed, the program will generate a chart comparing the two selected teams. The chart will visually display information such as close-game wins and losses or win percentage so that users can easily interpret the results. This chart will be embedded into the Tkinter results screen, alongside a text summary of the comparison. The purpose of the visualization is to make the data more interactive, readable, and meaningful for the user.
 
