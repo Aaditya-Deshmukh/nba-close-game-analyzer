@@ -29,6 +29,15 @@ def get_all_teams():
     return resp.json()["data"]
 
 
+def get_team_id(team_name):
+    """Return the team dict for the first team whose full name contains team_name."""
+    teams = get_all_teams()
+    team = next((t for t in teams if team_name.lower() in t["full_name"].lower()), None)
+    if team is None:
+        raise ValueError(f"No team found matching '{team_name}'")
+    return team
+
+
 def get_games_for_team(team_id, seasons=None):
     """
     Fetch all games for a given team ID across the specified seasons.

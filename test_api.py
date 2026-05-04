@@ -1,12 +1,12 @@
-from api_client import get_all_teams
+from api_client import get_all_teams, get_team_id
 from data_manager import fetch_and_cache, load_close_games
 
 print("Fetching all teams...")
 teams = get_all_teams()
 print(f"  Got {len(teams)} teams")
 
-lakers = next(t for t in teams if "Lakers" in t["full_name"])
-celtics = next(t for t in teams if "Celtics" in t["full_name"])
+lakers = get_team_id("Lakers")
+celtics = get_team_id("Celtics")
 print(f"  Lakers ID: {lakers['id']}, Celtics ID: {celtics['id']}")
 
 for team in (lakers, celtics):
