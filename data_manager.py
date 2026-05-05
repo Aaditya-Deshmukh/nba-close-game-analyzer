@@ -1,22 +1,40 @@
 import csv
 import os
 
-from api_client import filter_close_games, get_games_for_team
+from api_client import filter_close_games, get_games_for_team, get_recent_seasons
 
 DATA_DIR = "data"
 COLUMNS = ["date", "home_team", "away_team", "home_score", "away_score", "point_diff", "team_won"]
 
 
-def _csv_path(team_name):
-    # Use only the last word of the team name (e.g. "Los Angeles Lakers" -> "lakers_games.csv")
-    slug = team_name.split()[-1].lower()
-    return os.path.join(DATA_DIR, f"{slug}_games.csv")
+def _csv_path(team_name, seasons):
+    """
+    Build the CSV file path for a team + season range.
+
+    The season range is encoded in the filename so that different season
+    selections are cached separately. For example:
+        seasons=[2024]           ->  data/lakers_2024_games.csv
+        seasons=[2020,2021,...,2024] ->  data/lakers_2020-2024_games.csv
+    """
+    slug = team_name.split()[-1].lower()  # "Los Angeles Lakers" -> "lakers"
+
+    # Encode the season range as either a single year or a "start-end" range
+    if len(seasons) == 1:
+        season_label = str(seasons[0])
+    else:
+        season_label = f"{min(seasons)}-{max(seasons)}"
+
+    return os.path.join(DATA_DIR, f"{slug}_{season_label}_games.csv")
 
 
-def save_close_games(team_name, close_games):
-    """Write close_games list to a CSV file under data/."""
+def save_close_games(team_name, seasons, close_games):
+    """
+    Write close_games to a CSV file under data/.
+    Creates the data/ directory if it doesn't exist.
+    Returns the path of the file written.
+    """
     os.makedirs(DATA_DIR, exist_ok=True)
-    path = _csv_path(team_name)
+    path = _csv_path(team_name, seasons)
     with open(path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=COLUMNS)
         writer.writeheader()
@@ -24,35 +42,57 @@ def save_close_games(team_name, close_games):
     return path
 
 
-def load_close_games(team_name):
-    """Read close games from the cached CSV. Returns None if file doesn't exist."""
-    path = _csv_path(team_name)
+def load_close_games(team_name, seasons):
+    """
+    Read close games from the cached CSV for this team + season range.
+    Returns None if no cache file exists yet.
+
+    CSV stores everything as strings, so numeric and boolean fields
+    are converted back to their correct types on load.
+    """
+    path = _csv_path(team_name, seasons)
     if not os.path.exists(path):
         return None
+
     with open(path, newline="") as f:
         reader = csv.DictReader(f)
         games = []
         for row in reader:
+            # Restore types that CSV serializes as plain strings
             row["home_score"] = int(row["home_score"])
             row["away_score"] = int(row["away_score"])
             row["point_diff"] = int(row["point_diff"])
             row["team_won"] = row["team_won"] == "True"
             games.append(row)
+
     return games
 
 
-def fetch_and_cache(team_id, team_name, seasons=None, force_refresh=False):
+def fetch_and_cache(team_id, team_name, seasons_back=5, force_refresh=False):
     """
-    Return close games for a team, using the cached CSV when available.
+    Return close games for a team, loading from CSV cache when available.
 
-    Set force_refresh=True to re-fetch from the API even if a cache exists.
+    Args:
+        team_id:       integer team ID from the API
+        team_name:     full team name, e.g. "Los Angeles Lakers"
+        seasons_back:  how many past seasons to include (default 5)
+                       e.g. seasons_back=1 -> last season only
+                            seasons_back=10 -> last 10 seasons
+        force_refresh: set True to ignore the cache and re-fetch from the API
+
+    Returns:
+        List of close game dicts (same structure as filter_close_games output).
     """
+    seasons = get_recent_seasons(seasons_back)
+
+    # Return cached data if it exists and a refresh wasn't requested
     if not force_refresh:
-        cached = load_close_games(team_name)
+        cached = load_close_games(team_name, seasons)
         if cached is not None:
             return cached
 
-    raw_games = get_games_for_team(team_id, seasons=seasons)
+    # Cache miss — fetch from API, filter, save, then return
+    raw_games = get_games_for_team(team_id, seasons)
     close_games = filter_close_games(raw_games, team_id)
-    save_close_games(team_name, close_games)
+    save_close_games(team_name, seasons, close_games)
     return close_games
