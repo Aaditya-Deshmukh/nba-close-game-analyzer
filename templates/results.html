@@ -2,119 +2,399 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Results — NBA Close Game Analyzer</title>
   <style>
+    /* ── Tokens ─────────────────────────────────────────── */
+    :root {
+      --navy:       #1a1a2e;
+      --navy-light: #16213e;
+      --red:        #e63946;
+      --red-dark:   #c1121f;
+      --white:      #ffffff;
+      --grey-bg:    #f4f6f9;
+      --grey-card:  #ffffff;
+      --grey-border:#e2e8f0;
+      --grey-muted: #64748b;
+      --grey-text:  #1e293b;
+      --green:      #2e7d32;
+      --green-bg:   #e8f5e9;
+      --amber:      #e65100;
+      --amber-bg:   #fff3e0;
+      --radius:     10px;
+      --shadow:     0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    /* ── Reset & Base ────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: Arial, sans-serif;
-      max-width: 700px;
-      margin: 60px auto;
-      padding: 0 20px;
-      background: #f4f4f4;
+      font-size: 15px;
+      line-height: 1.6;
+      background: var(--grey-bg);
+      color: var(--grey-text);
     }
-    h1 { color: #1a1a2e; }
-    h2 { color: #333; margin-top: 32px; }
-    .card {
-      background: white;
-      padding: 28px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      margin-top: 20px;
+
+    /* ── Top Bar ─────────────────────────────────────────── */
+    .topbar {
+      background: var(--navy);
+      color: var(--white);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .topbar-sub {
+      font-size: 13px;
+      opacity: 0.65;
+      margin-top: 2px;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      background: var(--red);
+      color: var(--white);
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background 150ms ease;
+    }
+    .back-btn:hover { background: var(--red-dark); }
+
+    /* ── Page wrapper ────────────────────────────────────── */
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+
+    /* ── Section label ───────────────────────────────────── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--grey-muted);
+      margin-bottom: 14px;
+      margin-top: 36px;
+    }
+
+    /* ── Team cards — side by side ───────────────────────── */
+    .teams-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 640px) {
+      .teams-grid { grid-template-columns: 1fr; }
+    }
+
+    .team-card {
+      background: var(--grey-card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .team-card-header {
+      background: var(--navy);
+      color: var(--white);
+      padding: 16px 22px;
+    }
+    .team-card-header h2 {
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .team-card-body {
+      padding: 6px 0;
     }
     .stat-row {
       display: flex;
       justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #eee;
-      font-size: 15px;
-    }
-    .stat-row:last-child { border-bottom: none; }
-    .stat-label { color: #555; }
-    .stat-value { font-weight: bold; color: #1a1a2e; }
-    .winner {
-      text-align: center;
-      margin-top: 24px;
-      padding: 16px;
-      background: #e8f5e9;
-      border-radius: 8px;
-      font-size: 18px;
-      font-weight: bold;
-      color: #2e7d32;
-    }
-    .tied {
-      text-align: center;
-      margin-top: 24px;
-      padding: 16px;
-      background: #fff3e0;
-      border-radius: 8px;
-      font-size: 18px;
-      font-weight: bold;
-      color: #e65100;
-    }
-    a {
-      display: inline-block;
-      margin-top: 28px;
-      padding: 10px 20px;
-      background: #1a1a2e;
-      color: white;
-      text-decoration: none;
-      border-radius: 6px;
+      align-items: center;
+      padding: 11px 22px;
+      border-bottom: 1px solid var(--grey-border);
       font-size: 14px;
     }
-    a:hover { background: #333; }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { color: var(--grey-muted); }
+    .stat-value {
+      font-weight: 700;
+      color: var(--navy);
+      font-size: 15px;
+    }
+    .stat-value.highlight { color: var(--red); }
+
+    /* ── Winner banner ───────────────────────────────────── */
+    .banner {
+      text-align: center;
+      padding: 18px 24px;
+      border-radius: var(--radius);
+      font-size: 17px;
+      font-weight: 700;
+      margin-top: 20px;
+      box-shadow: var(--shadow);
+    }
+    .banner.winner { background: var(--green-bg); color: var(--green); }
+    .banner.tied   { background: var(--amber-bg); color: var(--amber); }
+
+    /* ── Chart grid ──────────────────────────────────────── */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    /* Stack charts on smaller screens */
+    @media (max-width: 768px) {
+      .charts-row { grid-template-columns: 1fr; }
+    }
+    /* Remove bottom margin from cards inside the row (row handles it) */
+    .charts-row .chart-card { margin-bottom: 0; }
+
+    /* ── Chart cards ──────────────────────────────────────── */
+    .chart-card {
+      background: var(--grey-card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .chart-card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+    .chart-card p {
+      font-size: 13px;
+      color: var(--grey-muted);
+      margin-bottom: 16px;
+    }
+
+    /* ── Per-season tables ───────────────────────────────── */
+    .table-card {
+      background: var(--grey-card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .table-card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 16px;
+    }
+    .season-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--grey-muted);
+      margin: 20px 0 8px;
+    }
+    .season-label:first-of-type { margin-top: 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 480px;
+    }
+    thead th {
+      background: var(--navy);
+      color: var(--white);
+      text-align: left;
+      padding: 10px 14px;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+    }
+    tbody td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--grey-border);
+      color: var(--grey-text);
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:nth-child(even) td { background: #f8fafc; }
+    tbody tr:hover td { background: #eef2ff; transition: background 120ms; }
   </style>
 </head>
 <body>
-  <h1>Close Game Comparison</h1>
-  <p>Last <strong>{{ seasons }}</strong> season(s) &mdash; games decided by 5 points or fewer</p>
 
-  <div class="card">
-    <h2>{{ team1_name }}</h2>
-    <div class="stat-row">
-      <span class="stat-label">Close games played</span>
-      <span class="stat-value">{{ team1_total }}</span>
+  <!-- Top navigation bar -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">NBA Close Game Analyzer</div>
+      <div class="topbar-sub">
+        {{ team1_name }} vs {{ team2_name }} &mdash; last {{ seasons }} season(s) &mdash; games decided by &le;5 points
+      </div>
     </div>
-    <div class="stat-row">
-      <span class="stat-label">Wins</span>
-      <span class="stat-value">{{ team1_wins }}</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Losses</span>
-      <span class="stat-value">{{ team1_losses }}</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Win percentage</span>
-      <span class="stat-value">{{ team1_pct }}%</span>
-    </div>
+    <a href="/" class="back-btn">&#8592; New Search</a>
   </div>
 
-  <div class="card">
-    <h2>{{ team2_name }}</h2>
-    <div class="stat-row">
-      <span class="stat-label">Close games played</span>
-      <span class="stat-value">{{ team2_total }}</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Wins</span>
-      <span class="stat-value">{{ team2_wins }}</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Losses</span>
-      <span class="stat-value">{{ team2_losses }}</span>
-    </div>
-    <div class="stat-row">
-      <span class="stat-label">Win percentage</span>
-      <span class="stat-value">{{ team2_pct }}%</span>
-    </div>
-  </div>
+  <div class="page">
 
-  {% if team1_pct > team2_pct %}
-    <div class="winner">{{ team1_name }} are better in close games!</div>
-  {% elif team2_pct > team1_pct %}
-    <div class="winner">{{ team2_name }} are better in close games!</div>
-  {% else %}
-    <div class="tied">It's a tie!</div>
-  {% endif %}
+    <!-- ── Team stat cards ── -->
+    <div class="section-label">Team Overview</div>
+    <div class="teams-grid">
 
-  <a href="/">&#8592; Back</a>
+      <div class="team-card">
+        <div class="team-card-header">
+          <h2>{{ team1_name }}</h2>
+        </div>
+        <div class="team-card-body">
+          <div class="stat-row">
+            <span class="stat-label">Close games played</span>
+            <span class="stat-value">{{ team1_total }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Wins</span>
+            <span class="stat-value">{{ team1_wins }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Losses</span>
+            <span class="stat-value">{{ team1_losses }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Win percentage</span>
+            <span class="stat-value highlight">{{ team1_pct }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="team-card">
+        <div class="team-card-header">
+          <h2>{{ team2_name }}</h2>
+        </div>
+        <div class="team-card-body">
+          <div class="stat-row">
+            <span class="stat-label">Close games played</span>
+            <span class="stat-value">{{ team2_total }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Wins</span>
+            <span class="stat-value">{{ team2_wins }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Losses</span>
+            <span class="stat-value">{{ team2_losses }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Win percentage</span>
+            <span class="stat-value highlight">{{ team2_pct }}%</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Winner / Tied banner -->
+    {% if team1_pct > team2_pct %}
+      <div class="banner winner">{{ team1_name }} perform better in close games!</div>
+    {% elif team2_pct > team1_pct %}
+      <div class="banner winner">{{ team2_name }} perform better in close games!</div>
+    {% else %}
+      <div class="banner tied">It's a tie — both teams are equally clutch!</div>
+    {% endif %}
+
+    <!-- ── Charts ── -->
+    <div class="section-label">Stats &amp; Charts</div>
+
+    <!-- Two bar charts side by side -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <h3>Wins vs Losses</h3>
+        <p>Overall close-game win/loss breakdown for each team.</p>
+        {{ win_loss_chart | safe }}
+      </div>
+
+      <div class="chart-card">
+        <h3>Close Games by Season</h3>
+        <p>How many close games each team played per season.</p>
+        {{ close_games_by_season_chart | safe }}
+      </div>
+    </div>
+
+    <!-- Trend line chart full width — reads better wide -->
+    <div class="chart-card">
+      <h3>Clutch Win % Trend</h3>
+      <p>Each team's close-game win percentage across seasons.</p>
+      {{ season_trend_chart | safe }}
+    </div>
+
+    <!-- ── Per-season game logs ── -->
+    <div class="section-label">Game Logs by Season</div>
+
+    <div class="table-card">
+      <h3>{{ team1_name }}</h3>
+      {% for season, games in team1_games_by_season.items() %}
+        <div class="season-label">{{ season }} Season</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Opponent</th>
+              <th>Final Score</th>
+              <th>Result</th>
+              <th>Margin</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for game in games %}
+              <tr>
+                <td>{{ game.date }}</td>
+                <td>{{ game.opponent }}</td>
+                <td>{{ game.final_score }}</td>
+                <td>{{ game.result }}</td>
+                <td>{{ game.margin }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endfor %}
+    </div>
+
+    <div class="table-card">
+      <h3>{{ team2_name }}</h3>
+      {% for season, games in team2_games_by_season.items() %}
+        <div class="season-label">{{ season }} Season</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Opponent</th>
+              <th>Final Score</th>
+              <th>Result</th>
+              <th>Margin</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for game in games %}
+              <tr>
+                <td>{{ game.date }}</td>
+                <td>{{ game.opponent }}</td>
+                <td>{{ game.final_score }}</td>
+                <td>{{ game.result }}</td>
+                <td>{{ game.margin }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endfor %}
+    </div>
+
+  </div><!-- /.page -->
 </body>
 </html>
