@@ -12,7 +12,7 @@ The NBA Close Game Analyzer is a web application that allows users to compare th
 
 1. Clone the repository and navigate into it:
 ```bash
-git clone <repo-url>
+git clone https://github.com/Aaditya-Deshmukh/nba-close-game-analyzer.git
 cd nba-close-game-analyzer
 ```
 
@@ -35,7 +35,7 @@ cp .env.example .env
 
 5. Pre-fetch and cache close game data for all 30 NBA teams (run once before starting the app):
 ```bash
-python3 -c "from data_manager import warm_cache_all_teams; warm_cache_all_teams(seasons_back=3)"
+python3 -c "from data_manager import warm_cache_all_teams; warm_cache_all_teams(seasons_back=3)" #change the seasons_back to what you want (3,5,...)
 ```
 This downloads data for every team and saves it as CSV files in `data/`. After this completes, the app reads from disk and makes no further API calls.
 
