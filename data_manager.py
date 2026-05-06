@@ -1,7 +1,8 @@
 import csv
 import os
+import time
 
-from api_client import filter_close_games, get_games_for_team, get_recent_seasons
+from api_client import filter_close_games, get_all_teams, get_games_for_team, get_recent_seasons
 
 DATA_DIR = "data"
 COLUMNS = ["date", "home_team", "away_team", "home_score", "away_score", "point_diff", "team_won"]
@@ -25,6 +26,12 @@ def _csv_path(team_name, seasons):
         season_label = f"{min(seasons)}-{max(seasons)}"
 
     return os.path.join(DATA_DIR, f"{slug}_{season_label}_games.csv")
+
+def save_team_id(data):
+    with open('data/team_id', 'w') as f:
+        f.write(data)
+
+    return 
 
 
 def save_close_games(team_name, seasons, close_games):
@@ -96,3 +103,37 @@ def fetch_and_cache(team_id, team_name, seasons_back=5, force_refresh=False):
     close_games = filter_close_games(raw_games, team_id)
     save_close_games(team_name, seasons, close_games)
     return close_games
+
+
+def warm_cache_all_teams(seasons_back=3, delay=2):
+    """
+    Pre-fetch and cache close game data for all 30 NBA teams.
+
+    Run this once before starting the app. After it completes, every
+    request reads from CSV with no API calls needed.
+
+    Args:
+        seasons_back: how many past seasons to fetch per team (default 3)
+        delay:        seconds to wait between each team to avoid rate limiting (default 2)
+    """
+    teams = get_all_teams()
+    total = len(teams)
+
+    for i, team in enumerate(teams, start=1):
+        name = team["full_name"]
+        seasons = get_recent_seasons(seasons_back)
+
+        # Skip teams that are already cached for this season range
+        if load_close_games(name, seasons) is not None:
+            print(f"[{i}/{total}] {name} — already cached, skipping")
+            continue
+
+        print(f"[{i}/{total}] {name} — fetching...", end=" ", flush=True)
+        raw_games = get_games_for_team(team["id"], seasons)
+        close_games = filter_close_games(raw_games, team["id"])
+        save_close_games(name, seasons, close_games)
+        print(f"{len(close_games)} close games saved")
+
+        # Pause between teams to stay under the API rate limit
+        if i < total:
+            time.sleep(delay)

@@ -1,5 +1,6 @@
 import datetime
 import os
+import time
 import requests
 from dotenv import load_dotenv
 
@@ -7,6 +8,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_URL = "https://api.balldontlie.io/v1"
+
+# In-memory cache — teams never change so we only fetch them once per session
+_teams_cache = None
 
 
 def _headers():
@@ -41,8 +45,12 @@ def get_all_teams():
     """
     Return a list of all 30 NBA teams from the API.
     Each team is a dict with keys: id, full_name, abbreviation, city, name, conference, division.
-    Used to populate the GUI dropdowns.
+    Result is cached in memory so the API is only called once per session.
     """
+    global _teams_cache
+    if _teams_cache is not None:
+        return _teams_cache
+
     resp = requests.get(
         f"{BASE_URL}/teams",
         headers=_headers(),
@@ -50,7 +58,8 @@ def get_all_teams():
         timeout=10,
     )
     resp.raise_for_status()
-    return resp.json()["data"]
+    _teams_cache = resp.json()["data"]
+    return _teams_cache
 
 
 def get_team_id(team_name):
@@ -113,6 +122,9 @@ def get_games_for_team(team_id, seasons):
         if cursor is None:
             break
 
+        # Pause between paginated requests to stay under the API rate limit
+        time.sleep(30)
+
     return all_games
 
 
@@ -137,8 +149,10 @@ def filter_close_games(games, team_id, max_diff=5):
         home_score = game.get("home_team_score")
         away_score = game.get("visitor_team_score")
 
-        # Skip games that haven't been played yet
+        # Skip games that haven't been played yet (API returns 0 for unplayed games)
         if home_score is None or away_score is None:
+            continue
+        if home_score == 0 and away_score == 0:
             continue
 
         diff = abs(home_score - away_score)
