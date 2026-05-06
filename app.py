@@ -1,6 +1,12 @@
 from flask import Flask, abort, request, jsonify, render_template
 from api_client import get_all_teams, get_team_id
 from data_manager import fetch_and_cache
+from analysis import compare_teams, summarize_by_season, format_close_games_by_season
+from visualizations import (
+    create_win_loss_chart,
+    create_season_trend_chart,
+    create_close_games_by_season_chart
+)
 
 app = Flask(__name__)
 
@@ -26,27 +32,58 @@ def results():
     team1_games = fetch_and_cache(team1["id"], team1["full_name"], seasons_back=seasons)
     team2_games = fetch_and_cache(team2["id"], team2["full_name"], seasons_back=seasons)
 
-    team1_wins   = sum(1 for g in team1_games if g["team_won"])
-    team2_wins   = sum(1 for g in team2_games if g["team_won"])
-    team1_total  = len(team1_games)
-    team2_total  = len(team2_games)
-    team1_pct    = round(team1_wins / team1_total * 100, 1) if team1_total else 0
-    team2_pct    = round(team2_wins / team2_total * 100, 1) if team2_total else 0
+
+    summary = compare_teams(team1_games, team2_games)
+
+    team1_seasons = summarize_by_season(team1_games)
+    team2_seasons = summarize_by_season(team2_games)
+
+    team1_games_by_season = format_close_games_by_season(team1_games, team1['full_name'])
+    team2_games_by_season = format_close_games_by_season(team2_games, team2['full_name'])
+
+    season_trend_chart = create_season_trend_chart(
+        team1["full_name"],
+        team2["full_name"],
+        team1_seasons,
+        team2_seasons
+    )
+
+    close_games_by_season_chart = create_close_games_by_season_chart(
+        team1["full_name"],
+        team2["full_name"],
+        team1_seasons,
+        team2_seasons
+    )
+
+    win_loss_chart = create_win_loss_chart(
+    team1["full_name"],
+    team2["full_name"],
+    summary
+)
 
     return render_template(
-        "results.html",
-        team1_name   = team1["full_name"],
-        team2_name   = team2["full_name"],
-        seasons      = seasons,
-        team1_total  = team1_total,
-        team1_wins   = team1_wins,
-        team1_losses = team1_total - team1_wins,
-        team1_pct    = team1_pct,
-        team2_total  = team2_total,
-        team2_wins   = team2_wins,
-        team2_losses = team2_total - team2_wins,
-        team2_pct    = team2_pct,
-    )
+    "results.html",
+    team1_name=team1["full_name"],
+    team2_name=team2["full_name"],
+    seasons=seasons,
+
+    team1_total=summary["team1"]["total"],
+    team1_wins=summary["team1"]["wins"],
+    team1_losses=summary["team1"]["losses"],
+    team1_pct=summary["team1"]["win_pct"],
+
+    team2_total=summary["team2"]["total"],
+    team2_wins=summary["team2"]["wins"],
+    team2_losses=summary["team2"]["losses"],
+    team2_pct=summary["team2"]["win_pct"],
+
+    win_loss_chart=win_loss_chart,
+    season_trend_chart=season_trend_chart,
+    close_games_by_season_chart=close_games_by_season_chart,
+
+    team1_games_by_season=team1_games_by_season,
+    team2_games_by_season=team2_games_by_season
+)
 
 
 # JSON API endpoint — kept for programmatic access

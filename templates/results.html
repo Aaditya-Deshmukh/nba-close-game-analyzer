@@ -61,6 +61,34 @@
       font-size: 14px;
     }
     a:hover { background: #333; }
+    table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+th {
+  background: #1a1a2e;
+  color: white;
+  text-align: left;
+  padding: 10px;
+}
+
+td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+h3 {
+  margin-top: 24px;
+  color: #1a1a2e;
+}
   </style>
 </head>
 <body>
@@ -105,7 +133,79 @@
       <span class="stat-label">Win percentage</span>
       <span class="stat-value">{{ team2_pct }}%</span>
     </div>
-  </div>
+
+  <div class="card">
+  <h2>Close Games by Season</h2>
+  <p>This chart shows how many close games each team played in each season.</p>
+  {{ close_games_by_season_chart | safe }}
+</div>
+
+<div class="card">
+  <h2>Clutch Trend Over Time</h2>
+  <p>This chart shows each team's close-game win percentage by season.</p>
+  {{ season_trend_chart | safe }}
+</div>
+<div class="card">
+  <h2>{{ team1_name }} Close Games by Season</h2>
+
+  {% for season, games in team1_games_by_season.items() %}
+    <h3>{{ season }} Season</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Opponent</th>
+          <th>Final Score</th>
+          <th>Result</th>
+          <th>Margin</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for game in games %}
+          <tr>
+            <td>{{ game.date }}</td>
+            <td>{{ game.opponent }}</td>
+            <td>{{ game.final_score }}</td>
+            <td>{{ game.result }}</td>
+            <td>{{ game.margin }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endfor %}
+</div>
+
+<div class="card">
+  <h2>{{ team2_name }} Close Games by Season</h2>
+
+  {% for season, games in team2_games_by_season.items() %}
+    <h3>{{ season }} Season</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Opponent</th>
+          <th>Final Score</th>
+          <th>Result</th>
+          <th>Margin</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for game in games %}
+          <tr>
+            <td>{{ game.date }}</td>
+            <td>{{ game.opponent }}</td>
+            <td>{{ game.final_score }}</td>
+            <td>{{ game.result }}</td>
+            <td>{{ game.margin }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endfor %}
+</div>
 
   {% if team1_pct > team2_pct %}
     <div class="winner">{{ team1_name }} are better in close games!</div>
