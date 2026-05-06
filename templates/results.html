@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Results — NBA Close Game Analyzer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 60px auto;
+      padding: 0 20px;
+      background: #f4f4f4;
+    }
+    h1 { color: #1a1a2e; }
+    h2 { color: #333; margin-top: 32px; }
+    .card {
+      background: white;
+      padding: 28px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 15px;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { color: #555; }
+    .stat-value { font-weight: bold; color: #1a1a2e; }
+    .winner {
+      text-align: center;
+      margin-top: 24px;
+      padding: 16px;
+      background: #e8f5e9;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #2e7d32;
+    }
+    .tied {
+      text-align: center;
+      margin-top: 24px;
+      padding: 16px;
+      background: #fff3e0;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #e65100;
+    }
+    a {
+      display: inline-block;
+      margin-top: 28px;
+      padding: 10px 20px;
+      background: #1a1a2e;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    a:hover { background: #333; }
+  </style>
+</head>
+<body>
+  <h1>Close Game Comparison</h1>
+  <p>Last <strong>{{ seasons }}</strong> season(s) &mdash; games decided by 5 points or fewer</p>
+
+  <div class="card">
+    <h2>{{ team1_name }}</h2>
+    <div class="stat-row">
+      <span class="stat-label">Close games played</span>
+      <span class="stat-value">{{ team1_total }}</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Wins</span>
+      <span class="stat-value">{{ team1_wins }}</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Losses</span>
+      <span class="stat-value">{{ team1_losses }}</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Win percentage</span>
+      <span class="stat-value">{{ team1_pct }}%</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>{{ team2_name }}</h2>
+    <div class="stat-row">
+      <span class="stat-label">Close games played</span>
+      <span class="stat-value">{{ team2_total }}</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Wins</span>
+      <span class="stat-value">{{ team2_wins }}</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Losses</span>
+      <span class="stat-value">{{ team2_losses }}</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Win percentage</span>
+      <span class="stat-value">{{ team2_pct }}%</span>
+    </div>
+  </div>
+
+  {% if team1_pct > team2_pct %}
+    <div class="winner">{{ team1_name }} are better in close games!</div>
+  {% elif team2_pct > team1_pct %}
+    <div class="winner">{{ team2_name }} are better in close games!</div>
+  {% else %}
+    <div class="tied">It's a tie!</div>
+  {% endif %}
+
+  <a href="/">&#8592; Back</a>
+</body>
+</html>

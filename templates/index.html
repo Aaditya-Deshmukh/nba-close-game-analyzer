@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NBA Close Game Analyzer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 80px auto;
+      padding: 0 20px;
+      background: #f4f4f4;
+    }
+    h1 { color: #1a1a2e; }
+    p  { color: #555; }
+    .card {
+      background: white;
+      padding: 32px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+    select, input[type=number] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 28px;
+      width: 100%;
+      padding: 12px;
+      background: #e63946;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover { background: #c1121f; }
+    .error {
+      color: #c1121f;
+      margin-top: 14px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h1>NBA Close Game Analyzer</h1>
+  <p>Compare how two teams perform in games decided by 5 points or fewer.</p>
+
+  <div class="card">
+    <form action="/results" method="get">
+
+      <label for="team1">Team 1</label>
+      <select name="team1" id="team1" required>
+        {% for team in teams %}
+          <option value="{{ team.full_name }}">{{ team.full_name }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="team2">Team 2</label>
+      <select name="team2" id="team2" required>
+        {% for team in teams %}
+          <option value="{{ team.full_name }}">{{ team.full_name }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="seasons">Seasons to compare</label>
+      <input
+        type="number"
+        name="seasons"
+        id="seasons"
+        value="3"
+        min="1"
+        max="10"
+        required
+      >
+
+      {% if error %}
+        <p class="error">{{ error }}</p>
+      {% endif %}
+
+      <button type="submit">Analyze</button>
+    </form>
+  </div>
+</body>
+</html>
