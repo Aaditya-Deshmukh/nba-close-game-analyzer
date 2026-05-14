@@ -3,3 +3,4 @@ python-dotenv
 matplotlib
 flask
 plotly
+pandas

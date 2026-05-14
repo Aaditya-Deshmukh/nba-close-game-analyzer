@@ -33,7 +33,11 @@ cp .env.example .env
 # open .env and set BALLDONTLIE_API_KEY=your_key_here
 ```
 
-5. Pre-fetch and cache close game data for all 30 NBA teams (run once before starting the app):
+5. Pre-fetch and cache close game data for all 30 NBA teams (run once before starting the app): 
+*Change `seasons_back` to however many seasons you want to compare, e.g. 3:*
+
+for example if you wanted to compare 3 seasons:
+
 ```bash
 python3 -c "from data_manager import warm_cache_all_teams; warm_cache_all_teams(seasons_back=3)" #change the seasons_back to what you want (3,5,...)
 ```
@@ -44,7 +48,7 @@ This downloads data for every team and saves it as CSV files in `data/`. After t
 python3 app.py
 ```
 
-Then open `http://127.0.0.1:5000` in your browser (use Safari or Firefox — Chrome may block localhost).
+Then open `http://127.0.0.1:8080` in your browser (use Safari or Firefox — Chrome may block localhost).
 
 
 # Project Outline / Plan

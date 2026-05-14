@@ -1,7 +1,13 @@
 from flask import Flask, abort, request, jsonify, render_template
-from api_client import get_all_teams, get_team_id
+from api_client import get_all_teams, get_team_id, get_recent_seasons
 from data_manager import fetch_and_cache
-from analysis import compare_teams, summarize_by_season, format_close_games_by_season
+from analysis import (
+    load_team_csv,
+    games_to_df,
+    compare_teams,
+    summarize_by_season,
+    format_close_games_by_season
+)
 from visualizations import (
     create_win_loss_chart,
     create_season_trend_chart,
@@ -9,6 +15,27 @@ from visualizations import (
 )
 
 app = Flask(__name__)
+
+def load_or_fetch_team_games(team_id, team_name, seasons_back):
+    """
+    First check if the team's preloaded CSV using Pandas.
+    If the CSV does not exist, it tries to fetch_and_cache.
+    Always returns a Pandas DataFrame.
+    """
+    seasons = get_recent_seasons(seasons_back)
+
+    cached_df = load_team_csv(team_name, seasons)
+
+    if cached_df is not None:
+        return cached_df
+
+    fetched_games = fetch_and_cache(
+        team_id,
+        team_name,
+        seasons_back=seasons_back
+    )
+
+    return games_to_df(fetched_games)
 
 
 @app.route("/")
@@ -29,8 +56,17 @@ def results():
     except ValueError:
         abort(404)
 
-    team1_games = fetch_and_cache(team1["id"], team1["full_name"], seasons_back=seasons)
-    team2_games = fetch_and_cache(team2["id"], team2["full_name"], seasons_back=seasons)
+    team1_games = load_or_fetch_team_games(
+        team1["id"],
+        team1["full_name"],
+        seasons
+    )
+
+    team2_games = load_or_fetch_team_games(
+        team2["id"],
+        team2["full_name"],
+        seasons
+    )
 
 
     summary = compare_teams(team1_games, team2_games)
@@ -96,13 +132,31 @@ def get_data():
     try:
         team1 = get_team_id(team1_name)
         team2 = get_team_id(team2_name)
-        team1_close_games = fetch_and_cache(team1["id"], team1["full_name"], seasons_back=seasons)
-        team2_close_games = fetch_and_cache(team2["id"], team2["full_name"], seasons_back=seasons)
+        team1_close_games = load_or_fetch_team_games(
+            team1["id"],
+            team1["full_name"],
+            seasons
+        )
+
+        team2_close_games = load_or_fetch_team_games(
+            team2["id"],
+            team2["full_name"],
+            seasons
+        )
     except ValueError:
         abort(404)
 
-    return jsonify({"team1": team1_close_games, "team2": team2_close_games})
+    team1_records = team1_close_games.copy()
+    team2_records = team2_close_games.copy()
+
+    team1_records["date"] = team1_records["date"].dt.strftime("%Y-%m-%d")
+    team2_records["date"] = team2_records["date"].dt.strftime("%Y-%m-%d")
+
+    return jsonify({
+        "team1": team1_records.to_dict("records"),
+        "team2": team2_records.to_dict("records")
+    })
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=8080)
