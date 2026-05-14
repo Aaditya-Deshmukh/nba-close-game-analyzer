@@ -104,3 +104,45 @@ The visualization portion of the project will present the analysis results in a 
 - Add head-to-head filtering to show only games where the two selected teams played each other
 - Compare individual player stats across teams
 - Deploy the app to a public server so no local installation is required
+
+# Team Contributions
+
+This project was completed as a partner project. Both partners contributed to different parts of the NBA Close Game Analyzer, including the Flask interface, data access, data organization, analysis, and visualizations.
+
+## Partner 1 (Sujan) Contributions
+
+Sujan worked mainly on the data access, data organization, and initial Flask app structure. This included setting up the BallDontLie API connection, retrieving NBA team and game data, and storing the results in local CSV files so the app would not need to repeatedly call the API. Sujan also helped set up the main Flask routes and page templates, including the basic layout and structure for the interface.
+
+Main contributions included:
+
+- Connected the project to the BallDontLie API
+- Retrieved team and game data
+- Cached API results into local CSV files
+- Organized game data by team and season range
+- Helped create the Flask app structure
+- Set up the main page template and helped with visual layout
+
+## Partner 2 (Aaditya) Contributions
+
+Aaditya worked mainly on the analysis, visualizations, and the second/results page of the project. This included using the stored CSV data to calculate close-game statistics such as total close games, wins, losses, and win percentage. Aaditya also created the interactive Plotly visualizations and organized the results page sections where the charts and analysis outputs are displayed.
+
+Main contributions included:
+
+- Used stored CSV data for analysis
+- Calculated close-game wins, losses, total games, and win percentage
+- Compared two selected teams using close-game metrics
+- Created interactive Plotly charts
+- Embedded visualizations into the Flask results page
+- Built sections on the second/results page for charts and analysis
+- Helped make the data easier to understand through visual summaries
+
+## Project Components Covered
+
+Together, the project includes the major components required for the final project:
+
+- **Interface:** Flask web app with pages for selecting teams/seasons and viewing results
+- **Data Access:** BallDontLie API used to retrieve NBA team and game data
+- **Data Organization:** Game data stored locally in CSV files by team and season range
+- **Analysis:** Close-game performance metrics calculated from the stored data
+- **Visualizations:** Interactive Plotly charts embedded into the Flask results page
+- **GitHub:** Project code and partner contributions are stored in the GitHub repository
