@@ -48,7 +48,7 @@ This downloads data for every team and saves it as CSV files in `data/`. After t
 python3 app.py
 ```
 
-Then open `http://127.0.0.1:5000` in your browser (use Safari or Firefox — Chrome may block localhost).
+Then open `http://127.0.0.1:8080` in your browser (use Safari or Firefox — Chrome may block localhost).
 
 
 # Project Outline / Plan
