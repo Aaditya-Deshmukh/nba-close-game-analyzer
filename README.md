@@ -102,5 +102,5 @@ The visualization portion of the project will present the analysis results in a 
 
 # Future Updates
 - Add head-to-head filtering to show only games where the two selected teams played each other
-- Add per-season breakdown charts to show clutch performance trends over time
+- Compare individual player stats across teams
 - Deploy the app to a public server so no local installation is required
